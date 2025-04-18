@@ -1,65 +1,67 @@
-import { useState, useEffect } from "react"
+import { useState } from "react";
 
-const Formulario = () => {
-    const [materiaA, setMateriaA] = useState(0);
-    const [materiaB, setMateriaB] = useState(0);
-    const [materiaC, setMateriaC] = useState(0);
-    const [nome, setNome] = useState('');
+import styles from "./Formulario.module.css";
 
-    useEffect(() => {
-        console.log("o componente iniciou");
+const CalcularIMC = () => {
+  const [altura, setAltura] = useState('');
+  const [peso, setPeso] = useState('');
+  const [resultado, setResultado] = useState();
 
-        return () => {
-            console.log("o componente finalizou")
-        }
-    }, []);
-    
-    useEffect(() => {
-        console.log("o estado mudou");
-    }, [nome]);
+  const calcular = (e) => {
+    e.preventDefault();
 
-    useEffect(() => {
-        console.log("materia A mudou para: " + materiaA)
-    }, [materiaA]);
-
-    const alteraNome = (evento) => {
-        // setNome(evento.target.value);
-        setNome(estadoAnterior => {
-            // estadoAnterior = valornovo
-            return evento.target.value;
-        })
+    if (!altura || !peso) {
+      alert("Preencha todos os campos");
+      return;
     }
 
-    const renderizaResultado = () => {
-        const soma = materiaA + materiaB + materiaC;
-        const media = soma / 3;
+    const alturaEmMetros = parseFloat(altura);
+    const pesoEmKg = parseFloat(peso);
 
-        if (media >= 7) {
-            return (
-                <p>Olá {nome}, você foi aprovado</p>
-            )
-        } else {
-            return (
-                <p>Olá {nome}, você não foi aprovado</p>
-            )
-        }
+    if (alturaEmMetros <= 0 || pesoEmKg <= 0) {
+      alert("Altura e peso devem ser maiores que zero");
+      return;
     }
 
-    return (
-        <form>
-            <ul>
-                {[1,2,3,4,5].map(item => (
-                    <li key={item}>{item}</li>
-                ))}
-            </ul>
+    const imc = pesoEmKg / (alturaEmMetros * alturaEmMetros);
+    setResultado(imc.toFixed(2));
+  };
 
-            <input type="text" placeholder="Seu nome" onChange={alteraNome}/>
-            <input type="number" placeholder="Nota matéria A" onChange={evento => setMateriaA(parseInt(evento.target.value))} />
-            <input type="number" placeholder="Nota matéria B" onChange={evento => setMateriaB(parseInt(evento.target.value))} />
-            <input type="number" placeholder="Nota matéria C" onChange={evento => setMateriaC(parseInt(evento.target.value))} />
-            {renderizaResultado()}
-        </form>
-    )
-}
+  return (
+    <div className={styles.dados}>
+      <h1>Calculadora de IMC</h1>
+      <form onSubmit={calcular}>
+        <div>
+          <label>Altura (m): </label>
+          <input placeholder="Ex.: 1.60 m" type="number" step="0.01" value={altura} onChange={(e) => setAltura(e.target.value)} />
+        </div>
+        <div>
+          <label>Peso (kg): </label>
+          <input placeholder="Ex: 70.5 kg" type="number" step="0.1" value={peso} onChange={(e) => setPeso(e.target.value)} />
+        </div>
+        <button type="submit">Calcular IMC</button>
+      </form>
 
-export default Formulario
+      {resultado && (
+        <div>
+          <p>Seu IMC é {resultado}</p>
+          <p>
+            {resultado < 18.5
+              ? "Seu IMC indica que você está abaixo do peso."
+              : resultado < 25
+              ? "Seu IMC está dentro da faixa considerada saudável."
+              : resultado < 30
+              ? "Seu IMC indica que você está um pouco acima do peso ideal."
+              : resultado < 35
+              ? "Seu IMC indica obesidade grau I."
+              : resultado < 40
+              ? "Seu IMC está na faixa de obesidade grau II."
+              : "Seu IMC indica obesidade mórbida."}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CalcularIMC;
